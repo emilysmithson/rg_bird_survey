@@ -3,8 +3,9 @@ import 'package:latlong/latlong.dart';
 class BoxType{
   String name;
   String description;
+  String icon;
   String image;
-  BoxType(this.name,  this.description, this.image);
+  BoxType(this.name,  this.description, this.icon, this.image);
 
 }
 
@@ -31,8 +32,10 @@ class User{
 class Sighting{
   int id;
   DateTime dateTime;
-  BirdBox birdBox;
+  int birdBox;
   Bird bird;
-  User user;
-  Sighting(this.id, this.dateTime, this.birdBox, this.bird, this.user);
+  String user;
+  bool birdSighted;
+  String comment;
+  Sighting(this.id, this.dateTime, this.birdBox,  this.user, this.birdSighted, this.comment, {this.bird});
 }

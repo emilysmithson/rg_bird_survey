@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rg_bird_survey/view/bird_box_list.dart';
+import 'package:rg_bird_survey/view/bird_box_information.dart';
 import 'package:rg_bird_survey/view/home_page.dart';
 import 'package:rg_bird_survey/view/map_page.dart';
 import 'providers/sightings_provider.dart';
@@ -51,7 +51,7 @@ class _MainPageState extends State<MainPage> {
           ? MyHomePage()
           : _currentIndex == 1
           ? MapPage()
-          :_currentIndex == 2? BirdsList(): BirdBoxList(),
+          :_currentIndex == 2? BirdsList(): BirdBoxInformation(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,

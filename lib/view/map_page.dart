@@ -26,7 +26,7 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     for (int i = 0; i< BirdBoxes.birdBoxesList.length; i++){
       _markers.add(Marker(point: BirdBoxes.birdBoxesList[i].location,builder:(context){
-        return Image.asset(BirdBoxes.birdBoxesList[i].boxType.image);
+        return Image.asset(BirdBoxes.birdBoxesList[i].boxType.icon);
       } ));
     }
     super.initState();

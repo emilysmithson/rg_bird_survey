@@ -22,7 +22,7 @@ class _BirdsListState extends State<BirdsList> {
                 side: BorderSide(color: Colors.white70, width: 1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Row(
+              child: Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(20.0),
