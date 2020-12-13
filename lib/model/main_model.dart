@@ -12,8 +12,9 @@ class BoxType{
 class BirdBox{
   int id;
   LatLng location;
+  String locationDescription;
   BoxType boxType;
-  BirdBox(this.id, this.location, this.boxType);
+  BirdBox(this.id, this.location, this.boxType, this.locationDescription);
 }
 
 class Bird{

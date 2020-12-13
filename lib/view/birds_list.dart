@@ -11,7 +11,7 @@ class _BirdsListState extends State<BirdsList> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemCount: Birds.birds.length - 1,
+      itemCount: Birds.birdsList.length - 2,
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -31,12 +31,12 @@ class _BirdsListState extends State<BirdsList> {
                         height: 80,
                         child: ClipOval(
                             child: Image.asset(
-                          Birds.birds[index].image[0],
+                          Birds.birdsList[index].image[0],
                           fit: BoxFit.fill,
                         ))),
                   ),
                   Expanded(
-                      child: Center(child: Text(Birds.birds[index].name, style: TextStyle(fontSize: 24),)))
+                      child: Center(child: Text(Birds.birdsList[index].name, style: TextStyle(fontSize: 24),)))
                 ],
               ),
             ),

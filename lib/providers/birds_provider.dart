@@ -10,7 +10,9 @@ class Birds {
   static final Bird nuthatch = Bird('Nut Hatch', '', ['assets/images/birds/nut_hatch.jpg']);
   static final Bird wren = Bird('Wren', '', ['assets/images/birds/wren.jpg']);
   static final Bird unknown = Bird('Unknown', '', []);
-  static final List<Bird> birds = [
+  static final Bird other = Bird('Other', '', []);
+  static final Bird unidentified = Bird('Unidentified', '', []);
+  static final List<Bird> birdsList = [
     robin,
     greatTit,
     blueTit,
@@ -18,6 +20,7 @@ class Birds {
     songThrush,
     nuthatch,
     wren,
-    unknown
+    other,
+    unidentified
   ];
 }

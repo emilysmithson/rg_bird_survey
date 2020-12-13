@@ -5,6 +5,8 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:user_location/user_location.dart';
 import 'package:rg_bird_survey/providers/birdboxes_provider.dart';
 
+import 'bird_box_information.dart';
+
 class MapPage extends StatefulWidget {
   MapPage();
 
@@ -26,7 +28,9 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     for (int i = 0; i< BirdBoxes.birdBoxesList.length; i++){
       _markers.add(Marker(point: BirdBoxes.birdBoxesList[i].location,builder:(context){
-        return Image.asset(BirdBoxes.birdBoxesList[i].boxType.icon);
+        return GestureDetector(onTap:(){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => BirdBoxInformation(i)),);
+        },child: Image.asset(BirdBoxes.birdBoxesList[i].boxType.icon));
       } ));
     }
     super.initState();
