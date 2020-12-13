@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rg_bird_survey/view/bird_box_information.dart';
+
 import 'package:rg_bird_survey/view/home_page.dart';
 import 'package:rg_bird_survey/view/map_page.dart';
 import 'providers/sightings_provider.dart';

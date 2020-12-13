@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rg_bird_survey/model/main_model.dart';
-import 'package:rg_bird_survey/providers/birdboxes_provider.dart';
 import 'package:rg_bird_survey/providers/birds_provider.dart';
 import 'package:rg_bird_survey/providers/sightings_provider.dart';
 

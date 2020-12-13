@@ -9,7 +9,7 @@ import 'package:rg_bird_survey/providers/sightings_provider.dart';
 
 // Define a custom Form widget.
 class DataEntryForm extends StatefulWidget {
-  double _height;
+  final double _height;
   DataEntryForm(this._height);
   @override
   DataEntryFormState createState() {
@@ -25,7 +25,7 @@ class DataEntryFormState extends State<DataEntryForm> {
   bool _birdsighted = false;
   int _bird = -1;
   String _comment = '';
-  int _selected;
+
   TextEditingController _controller = TextEditingController();
 
   double _widgetHeight = 300;
@@ -36,6 +36,7 @@ class DataEntryFormState extends State<DataEntryForm> {
   @override
   void initState() {
     _sizedBoxHeight = (widget._height - _widgetHeight - 120) / 2;
+    super.initState();
   }
 
   @override
