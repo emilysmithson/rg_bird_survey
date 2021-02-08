@@ -1,23 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:rg_bird_survey/models/bird.dart';
+import 'package:rg_bird_survey/models/user.dart';
+import 'package:rg_bird_survey/providers/birds_provider.dart';
 
 import 'package:rg_bird_survey/view/home_page.dart';
 import 'package:rg_bird_survey/view/map_page.dart';
-import 'providers/sightings_provider.dart';
+import 'providers/observations_provider.dart';
 import 'view/birds_list.dart';
 import 'view/data_entry_form.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'models/observation.dart';
 
-void main() {
+Future<void> main() async {
+  // We get the current app directory
+  WidgetsFlutterBinding.ensureInitialized();
+  // final appDocDir = await getApplicationDocumentsDirectory();
+  //
+  // // We initialize Hive and we give him the current path
+  // Hive
+  //   ..init(appDocDir.path)
+  //   ..registerAdapter(ObservationAdapter())
+  //   ..registerAdapter(BirdAdapter())..registerAdapter(UserAdapter());
+  // var box = await Hive.openBox('test2');
+  //
+  // await box.put(
+  //     '123',
+  //     Observation(
+  //       0,
+  //       DateTime(
+  //         2020,
+  //         12,
+  //         07,
+  //         13,
+  //         34,
+  //         21,
+  //         32,
+  //       ),
+  //       2,
+  //       User(1, 'Emily', 'Smithson', 'Emily'),
+  //       true,
+  //       'lovely',
+  //       bird: Birds.nuthatch,
+  //     ));
+  //
+  // Observation observation = box.get('123');
+  //
+  // print(observation.user);
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
-          value: Sightings(),
+          value: Observations(),
         ),
       ],
       child: MaterialApp(
@@ -26,21 +69,24 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
-          home: MainPage()
-          //BirdsList()
-          //MyHomePage(title: "AndroidVille Provider Pattern"),
+          home: FutureBuilder(
+            future: _fbApp,
+            builder: (future, snapshot) {
+              if (snapshot.hasError) {
+                print('You have an error. ${snapshot.error.toString()}');
+                return Text('You have an error');
+              } else if (snapshot.hasData) {
+                return MainPage();
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
+          )
+          // MainPage()
           ),
     );
   }
 }
-
-// Widget _bottomAppBarItems(int number, IconData icon, String label) {
-//   return Padding(
-//     padding: const EdgeInsets.all(8.0),
-//     child:
-//         Column(mainAxisSize: MainAxisSize.min, children: [Icon(icon, color: Colors.white), Text(label, style: TextStyle(color: Colors.white),)]),
-//   );
-// }
 
 class MainPage extends StatefulWidget {
   @override
@@ -49,6 +95,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+
   Widget _bottomAppBarItems(
     int index,
     IconData icon,
@@ -89,9 +136,16 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBody: true,
-      floatingActionButton:
-          FloatingActionButton(onPressed: () {}, child: Icon(Icons.add)),
+      extendBody: true,
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        DataEntryForm(MediaQuery.of(context).size.height)));
+          },
+          child: Icon(Icons.add)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
         title: Text('Redland Green Bird Survey'),
@@ -100,9 +154,11 @@ class _MainPageState extends State<MainPage> {
           ? MyHomePage()
           : _currentIndex == 1
               ? MapPage()
-              : _currentIndex == 2? BirdsList(): DataEntryForm(MediaQuery.of(context).size.height),
+              : _currentIndex == 2
+                  ? BirdsList()
+                  : DataEntryForm(MediaQuery.of(context).size.height),
       bottomNavigationBar: BottomAppBar(
-       shape: CircularNotchedRectangle(),
+        shape: CircularNotchedRectangle(),
         color: Colors.lightBlueAccent,
         notchMargin: 4,
         clipBehavior: Clip.none,

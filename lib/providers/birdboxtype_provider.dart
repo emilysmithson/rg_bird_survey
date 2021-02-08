@@ -1,5 +1,7 @@
 
-import 'package:rg_bird_survey/model/main_model.dart';
+
+
+import 'package:rg_bird_survey/models/box_type.dart';
 
 class BirdBoxTypes {
   static final BoxType seville = BoxType(

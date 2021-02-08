@@ -1,5 +1,7 @@
 
-import 'package:rg_bird_survey/model/main_model.dart';
+
+
+import 'package:rg_bird_survey/models/bird.dart';
 
 class Birds {
   static final Bird robin = Bird('Robin', '', ['assets/images/birds/robin.jpg', 'assets/images/birds/robin2.jpg', 'assets/images/birds/robin3.jpg']);

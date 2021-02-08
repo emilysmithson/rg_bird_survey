@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:rg_bird_survey/model/main_model.dart';
+import 'package:rg_bird_survey/models/observation.dart';
+import 'package:rg_bird_survey/models/user.dart';
 import 'package:rg_bird_survey/providers/birdboxes_provider.dart';
 import 'package:rg_bird_survey/providers/birds_provider.dart';
-import 'package:rg_bird_survey/providers/sightings_provider.dart';
+import 'package:rg_bird_survey/providers/observations_provider.dart';
 
 // Define a custom Form widget.
 class DataEntryForm extends StatefulWidget {
@@ -26,41 +27,50 @@ class DataEntryFormState extends State<DataEntryForm> {
   int _bird = -1;
   String _comment = '';
 
-  TextEditingController _controller = TextEditingController();
+ final  TextEditingController _controller = TextEditingController();
 
-  double _widgetHeight = 300;
+ final  double _widgetHeight = 400;
   double _sizedBoxHeight;
   final _formKey = GlobalKey<FormState>();
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
-    _sizedBoxHeight = (widget._height - _widgetHeight - 120) / 2;
+    _sizedBoxHeight = (widget._height - _widgetHeight - 60) / 2;
+    _controller.clear();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: ListView(controller: _scrollController, children: <Widget>[
-          SizedBox(height: _sizedBoxHeight),
-          _chooseBirdBoxNumber(),
-          SizedBox(height: _sizedBoxHeight),
-          _chooseDateTime(),
-          SizedBox(height: _sizedBoxHeight),
-          _birdSighted(),
-          SizedBox(height: _sizedBoxHeight),
-          _chooseBird(),
-          SizedBox(height: _sizedBoxHeight),
-          _commentFormField(),
-          SizedBox(height: _sizedBoxHeight),
-          _summaryAndSubmitField(),
-          SizedBox(height: _sizedBoxHeight),
-        ]));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Enter An Observation'),
+      ),
+      body: Form(
+          key: _formKey,
+          child: ListView(
+              controller: _scrollController,
+              physics: NeverScrollableScrollPhysics(),
+              children: <Widget>[
+                SizedBox(height: _sizedBoxHeight),
+                _chooseBirdBoxNumber(),
+                SizedBox(height: _sizedBoxHeight),
+                _chooseDateTime(),
+                SizedBox(height: _sizedBoxHeight),
+                _birdSighted(),
+                SizedBox(height: _sizedBoxHeight),
+                _chooseBird(),
+                SizedBox(height: _sizedBoxHeight),
+                _commentFormField(),
+                SizedBox(height: _sizedBoxHeight),
+                _summaryAndSubmitField(),
+                SizedBox(height: _sizedBoxHeight),
+              ])),
+    );
   }
 
-  _chooseBirdBoxNumber() {
+  Widget _chooseBirdBoxNumber() {
     return Container(
         color: Colors.blue[50],
         height: _widgetHeight,
@@ -124,7 +134,7 @@ class DataEntryFormState extends State<DataEntryForm> {
         ));
   }
 
-  _chooseDateTime() {
+  Widget _chooseDateTime() {
     return Container(
       height: _widgetHeight,
       color: Colors.blue[50],
@@ -180,7 +190,7 @@ class DataEntryFormState extends State<DataEntryForm> {
     );
   }
 
-  _birdSighted() {
+  Widget _birdSighted() {
     return Container(
       height: _widgetHeight,
       color: Colors.blue[50],
@@ -232,7 +242,7 @@ class DataEntryFormState extends State<DataEntryForm> {
     );
   }
 
-  _chooseBird() {
+  Widget _chooseBird() {
     return Container(
       color: Colors.blue[50],
       width: 200,
@@ -273,7 +283,7 @@ class DataEntryFormState extends State<DataEntryForm> {
                         color: Colors.white,
                         child: Column(
                           children: [
-                            Birds.birdsList[index].image.length == 0
+                            Birds.birdsList[index].image.isEmpty
                                 ? Container(
                                     height: 100,
                                     width: 100,
@@ -315,7 +325,7 @@ class DataEntryFormState extends State<DataEntryForm> {
     );
   }
 
-  _commentFormField() {
+  Widget _commentFormField() {
     return Container(
       color: Colors.blue[50],
       height: _widgetHeight,
@@ -340,6 +350,10 @@ class DataEntryFormState extends State<DataEntryForm> {
           IconButton(
             icon: Icon(Icons.navigate_next),
             onPressed: () {
+              setState(() {
+                _comment = _controller.text;
+              });
+
               _scrollController.animateTo(
                   5 * _sizedBoxHeight + 5 * _widgetHeight,
                   curve: Curves.linear,
@@ -351,7 +365,7 @@ class DataEntryFormState extends State<DataEntryForm> {
     );
   }
 
-  _summaryAndSubmitField() {
+  Widget _summaryAndSubmitField() {
     _comment = _controller.text;
     return Container(
       color: Colors.blue[50],
@@ -425,14 +439,18 @@ class DataEntryFormState extends State<DataEntryForm> {
             ),
             ElevatedButton(
               onPressed: () {
-                Provider.of<Sightings>(context, listen: false).enterSighting(Sighting(
-                    Provider.of<Sightings>(context, listen: false).getSightingsLenghth(),
-                    _dateTime,
-                    _birdbox,
-                    'not sure',
-                    _birdsighted,
-                    _comment,
-                    bird: _birdsighted ? Birds.birdsList[_bird] : null));
+                Provider.of<Observations>(context, listen: false)
+                        .enterObservation =
+                    Observation(
+                        Provider.of<Observations>(context, listen: false)
+                            .observationsLength,
+                        _dateTime,
+                        _birdbox,
+                        'Emily',
+                        _birdsighted,
+                        _comment,
+                        bird: _birdsighted ? Birds.birdsList[_bird] : null);
+                Navigator.pop(context);
               },
               child: Text('Submit'),
             ),
