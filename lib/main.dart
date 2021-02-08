@@ -17,38 +17,41 @@ import 'models/observation.dart';
 Future<void> main() async {
   // We get the current app directory
   WidgetsFlutterBinding.ensureInitialized();
-  // final appDocDir = await getApplicationDocumentsDirectory();
+  final appDocDir = await getApplicationDocumentsDirectory();
   //
   // // We initialize Hive and we give him the current path
-  // Hive
-  //   ..init(appDocDir.path)
-  //   ..registerAdapter(ObservationAdapter())
-  //   ..registerAdapter(BirdAdapter())..registerAdapter(UserAdapter());
-  // var box = await Hive.openBox('test2');
-  //
-  // await box.put(
-  //     '123',
-  //     Observation(
-  //       0,
-  //       DateTime(
-  //         2020,
-  //         12,
-  //         07,
-  //         13,
-  //         34,
-  //         21,
-  //         32,
-  //       ),
-  //       2,
-  //       User(1, 'Emily', 'Smithson', 'Emily'),
-  //       true,
-  //       'lovely',
-  //       bird: Birds.nuthatch,
-  //     ));
-  //
-  // Observation observation = box.get('123');
-  //
-  // print(observation.user);
+  Hive
+    ..init(appDocDir.path)
+    ..registerAdapter(ObservationAdapter())
+    ..registerAdapter(BirdAdapter())
+    ..registerAdapter(UserAdapter());
+  var box = await Hive.openBox('observations');
+
+  await box.clear();
+
+  await box.put(
+      '123',
+      Observation(
+        0,
+        DateTime(
+          2020,
+          12,
+          07,
+          13,
+          34,
+          21,
+          32,
+        ),
+        2,
+        'Emily',
+        true,
+        'lovely',
+        bird: Birds.nuthatch,
+      ));
+
+  Observation observation = box.get('123');
+
+  print(observation.user);
   runApp(MyApp());
 }
 
