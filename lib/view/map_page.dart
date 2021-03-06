@@ -95,6 +95,7 @@ class _PopUpState extends State<PopUp> {
         width: 300,
         child: Card(
             child: ListTile(
+          contentPadding: const EdgeInsets.all(8),
           leading: ClipOval(
             child: Image.asset(
               _marker.boxType.image,
@@ -103,15 +104,9 @@ class _PopUpState extends State<PopUp> {
           ),
           title: Text(
             'Bird Box ' + _marker.id.toString(),
-            softWrap: true,
           ),
           subtitle: Text(
             _marker.locationDescription,
-            overflow: TextOverflow.fade,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14.0,
-            ),
           ),
         )
 

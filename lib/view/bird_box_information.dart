@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:rg_bird_survey/providers/birdboxes_provider.dart';
 import 'package:rg_bird_survey/providers/observations_provider.dart';
 
@@ -13,12 +12,11 @@ class BirdBoxInformation extends StatefulWidget {
 
 class _BirdBoxInformationState extends State<BirdBoxInformation> {
   final List<DataRow> _dataRows = [];
-   int _birdBoxNumber;
-
+  int _birdBoxNumber;
 
   @override
   void didChangeDependencies() {
- _birdBoxNumber = widget.birdBoxNumber;
+    _birdBoxNumber = widget.birdBoxNumber;
     var sightings = Provider.of<Observations>(context).observations;
     for (var i = 0; i < sightings.length; i++) {
       if (sightings[i].birdBox == _birdBoxNumber) {
@@ -44,8 +42,6 @@ class _BirdBoxInformationState extends State<BirdBoxInformation> {
 
   @override
   Widget build(BuildContext context) {
-   
-
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -58,9 +54,8 @@ class _BirdBoxInformationState extends State<BirdBoxInformation> {
                   width: 200,
                   height: 200,
                   child: Image.asset(
-                    BirdBoxes.birdBoxesList[_birdBoxNumber].boxType.image,
-                 //   fit: BoxFit.fill,
-                  )),
+                      BirdBoxes.birdBoxesList[_birdBoxNumber].boxType.image,
+                      fit: BoxFit.fitHeight)),
             ),
             Text(
               'Bird Box ' +
@@ -70,22 +65,25 @@ class _BirdBoxInformationState extends State<BirdBoxInformation> {
               style: TextStyle(fontSize: 24),
             ),
             SizedBox(height: 12),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Expanded(child: Padding(
+                Expanded(
+                    child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    children: [Text(BirdBoxes.birdBoxesList[_birdBoxNumber].boxType.description),
+                    children: [
+                      Text(BirdBoxes
+                          .birdBoxesList[_birdBoxNumber].boxType.description),
                       SizedBox(height: 12),
-                      Text(BirdBoxes.birdBoxesList[_birdBoxNumber].locationDescription),
+                      Text(BirdBoxes
+                          .birdBoxesList[_birdBoxNumber].locationDescription),
                     ],
                   ),
                 )),
                 Column(
                   children: [
-                    IconButton(icon: Icon(Icons.map), onPressed:(){}),
+                    IconButton(icon: Icon(Icons.map), onPressed: () {}),
                     Text('Show on map')
                   ],
                 )
@@ -97,18 +95,20 @@ class _BirdBoxInformationState extends State<BirdBoxInformation> {
             SizedBox(height: 8),
             Text('Observations'),
             SizedBox(height: 8),
-            Container(height: 300,
-                child: Card(color: Colors.green[100],
+            Container(
+                height: 300,
+                child: Card(
+                  color: Colors.green[100],
                   child: SingleChildScrollView(
                       child: DataTable(
-              columns: [
-                  DataColumn(label: Text('Date')),
-                  DataColumn(label: Text('User')),
-                  DataColumn(label: Text('Bird')),
-                  DataColumn(label: Text('Comment'))
-              ],
-              rows: _dataRows,
-            )),
+                    columns: [
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('User')),
+                      DataColumn(label: Text('Bird')),
+                      DataColumn(label: Text('Comment'))
+                    ],
+                    rows: _dataRows,
+                  )),
                 )),
           ],
         ),

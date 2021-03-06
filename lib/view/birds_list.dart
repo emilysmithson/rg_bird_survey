@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../providers/birds_provider.dart';
 
 class BirdsList extends StatefulWidget {
@@ -10,39 +11,45 @@ class _BirdsListState extends State<BirdsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemCount: Birds.birdsList.length - 2,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            height: 120,
-            child: Card(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.white70, width: 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Container(
-                        width: 80,
-                        height: 80,
-                        child: ClipOval(
-                            child: Image.asset(
-                          Birds.birdsList[index].image[0],
-                          fit: BoxFit.fill,
-                        ))),
-                  ),
-                  Expanded(
-                      child: Center(child: Text(Birds.birdsList[index].name, style: TextStyle(fontSize: 24),)))
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    ));
+      body: Wrap(
+        alignment: WrapAlignment.spaceAround,
+        runSpacing: 10,
+        children: Birds.birdsList.map((bird) {
+          return bird.image.isEmpty
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    height: 100,
+                    width: 100,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: GridTile(
+                        child:
+                            Image.asset(bird.image[0], fit: BoxFit.fitHeight),
+                        footer: Container(
+                          color: Colors.white.withOpacity(0.5),
+                          child: Center(
+                            child: Text(
+                              bird.name,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ));
+        }).toList(),
+      ),
+    );
   }
 }
