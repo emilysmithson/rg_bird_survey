@@ -69,13 +69,20 @@ class _BirdBoxInformationState extends State<BirdBoxInformation> {
                   BirdBoxes.birdBoxesList[_birdBoxNumber].boxType.name,
               style: TextStyle(fontSize: 24),
             ),
-            SizedBox(height: 8),
-            Text(BirdBoxes.birdBoxesList[_birdBoxNumber].boxType.description),
-            SizedBox(height: 8),
+            SizedBox(height: 12),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(BirdBoxes.birdBoxesList[_birdBoxNumber].locationDescription),
+                Expanded(child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [Text(BirdBoxes.birdBoxesList[_birdBoxNumber].boxType.description),
+                      SizedBox(height: 12),
+                      Text(BirdBoxes.birdBoxesList[_birdBoxNumber].locationDescription),
+                    ],
+                  ),
+                )),
                 Column(
                   children: [
                     IconButton(icon: Icon(Icons.map), onPressed:(){}),
@@ -84,7 +91,7 @@ class _BirdBoxInformationState extends State<BirdBoxInformation> {
                 )
               ],
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 12),
             FloatingActionButton.extended(
                 onPressed: () {}, label: Text('Add Observation')),
             SizedBox(height: 8),

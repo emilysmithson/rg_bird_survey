@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:rg_bird_survey/models/user.dart';
 
 import 'bird.dart';
 part 'observation.g.dart'; // Name of the TypeAdapter that we will generate in the future

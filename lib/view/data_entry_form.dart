@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:rg_bird_survey/models/observation.dart';
-import 'package:rg_bird_survey/models/user.dart';
+import 'package:rg_bird_survey/models/bird.dart';
 import 'package:rg_bird_survey/providers/birdboxes_provider.dart';
 import 'package:rg_bird_survey/providers/birds_provider.dart';
-import 'package:rg_bird_survey/providers/observations_provider.dart';
 
 // Define a custom Form widget.
 class DataEntryForm extends StatefulWidget {
   final double _height;
+
   DataEntryForm(this._height);
+
   @override
   DataEntryFormState createState() {
     return DataEntryFormState();
@@ -22,441 +21,387 @@ class DataEntryForm extends StatefulWidget {
 // This class holds data related to the form.
 class DataEntryFormState extends State<DataEntryForm> {
   DateTime _dateTime = DateTime.now();
-  int _birdbox = -1;
-  bool _birdsighted = false;
-  int _bird = -1;
+  int _birdBox = -1;
+  bool _isBirdSighted;
+  Bird _bird;
   String _comment = '';
+  List<StepState> stepStateList = [
+    StepState.indexed,
+    StepState.indexed,
+    StepState.indexed,
+    StepState.indexed,
+    StepState.indexed,
+    StepState.indexed,
+  ];
 
- final  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
- final  double _widgetHeight = 400;
-  double _sizedBoxHeight;
   final _formKey = GlobalKey<FormState>();
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
-    _sizedBoxHeight = (widget._height - _widgetHeight - 60) / 2;
     _controller.clear();
+    _isBirdSighted = false;
     super.initState();
   }
 
+  int _currentStep = 0;
+
   @override
   Widget build(BuildContext context) {
+    print(_currentStep);
     return Scaffold(
       appBar: AppBar(
         title: Text('Enter An Observation'),
       ),
-      body: Form(
+      body: SingleChildScrollView(
+        child: Form(
           key: _formKey,
-          child: ListView(
-              controller: _scrollController,
-              physics: NeverScrollableScrollPhysics(),
-              children: <Widget>[
-                SizedBox(height: _sizedBoxHeight),
+          child: Stepper(
+              physics: ClampingScrollPhysics(),
+              onStepTapped: (stepNumber) {
+                setState(() {
+                  // _currentStep = stepNumber;
+                });
+              },
+              controlsBuilder: (BuildContext context,
+                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                return Row(
+                  children: <Widget>[
+                    ContinueButton(),
+                    BackButton(),
+                  ],
+                );
+              },
+              currentStep: _currentStep,
+              onStepContinue: () {
+                onStepContinue();
+              },
+              onStepCancel: () {},
+              steps: <Step>[
                 _chooseBirdBoxNumber(),
-                SizedBox(height: _sizedBoxHeight),
                 _chooseDateTime(),
-                SizedBox(height: _sizedBoxHeight),
-                _birdSighted(),
-                SizedBox(height: _sizedBoxHeight),
                 _chooseBird(),
-                SizedBox(height: _sizedBoxHeight),
                 _commentFormField(),
-                SizedBox(height: _sizedBoxHeight),
                 _summaryAndSubmitField(),
-                SizedBox(height: _sizedBoxHeight),
-              ])),
-    );
-  }
-
-  Widget _chooseBirdBoxNumber() {
-    return Container(
-        color: Colors.blue[50],
-        height: _widgetHeight,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text('Select the Bird Box number',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              Expanded(
-                child: GridView.builder(
-                    itemCount: BirdBoxes.birdBoxesList.length,
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      childAspectRatio: 0.7,
-                      maxCrossAxisExtent: 50,
-                    ),
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _birdbox = index;
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: _birdbox == index ? 5.0 : 0.0,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(1.0),
-                            child: Column(
-                              children: [
-                                Image.asset(BirdBoxes
-                                    .birdBoxesList[index].boxType.icon),
-                                Text((index + 1).toString())
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-              ),
-              _birdbox == -1
-                  ? Container()
-                  : Text(BirdBoxes.birdBoxesList[_birdbox].locationDescription),
-              IconButton(
-                icon: Icon(Icons.navigate_next,
-                    color: _birdbox == -1 ? Colors.grey : Colors.black),
-                onPressed: () {
-                  if (_birdbox != -1) {
-                    _scrollController.animateTo(_sizedBoxHeight + _widgetHeight,
-                        curve: Curves.linear,
-                        duration: Duration(milliseconds: 500));
-                  }
-                },
-              )
-            ],
-          ),
-        ));
-  }
-
-  Widget _chooseDateTime() {
-    return Container(
-      height: _widgetHeight,
-      color: Colors.blue[50],
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.navigate_before),
-              onPressed: () {
-                _scrollController.animateTo(0,
-                    curve: Curves.linear,
-                    duration: Duration(milliseconds: 500));
-              },
-            ),
-            Text(
-              'Time of observation',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            Container(
-              height: 100,
-              child: CupertinoTheme(
-                data: CupertinoThemeData(
-                  textTheme: CupertinoTextThemeData(
-                    dateTimePickerTextStyle: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.dateAndTime,
-                  minimumYear: 2020,
-                  initialDateTime: _dateTime,
-                  maximumDate: DateTime.now(),
-                  onDateTimeChanged: (DateTime newDateTime) {
-                    _dateTime = newDateTime;
-                  },
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.navigate_next),
-              onPressed: () {
-                _scrollController.animateTo(
-                    2 * _sizedBoxHeight + 2 * _widgetHeight,
-                    curve: Curves.linear,
-                    duration: Duration(milliseconds: 500));
-              },
-            )
-          ],
+              ]),
         ),
       ),
     );
   }
 
-  Widget _birdSighted() {
-    return Container(
-      height: _widgetHeight,
-      color: Colors.blue[50],
-      child: Center(
-          child: Column(
-        children: [
-          IconButton(
-            icon: Icon(Icons.navigate_before),
-            onPressed: () {
-              _scrollController.animateTo(_sizedBoxHeight + _widgetHeight,
-                  curve: Curves.linear, duration: Duration(milliseconds: 500));
-            },
-          ),
-          Text('Did you spot a bird at this bird box?'),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('No'),
-              Switch(
-                value: _birdsighted,
-                onChanged: (value) {
-                  setState(() {
-                    _birdsighted = value;
-
-                    if (!_birdsighted) {
-                      _bird = null;
-                    }
-                  });
-                },
-                activeTrackColor: Colors.lightGreenAccent,
-                activeColor: Colors.green,
-              ),
-              Text('Yes'),
-            ],
-          ),
-          IconButton(
-            icon: Icon(Icons.navigate_next),
-            onPressed: () {
-              _scrollController.animateTo(
-                  _birdsighted
-                      ? 3 * _sizedBoxHeight + 3 * _widgetHeight
-                      : 4 * _sizedBoxHeight + 4 * _widgetHeight,
-                  curve: Curves.linear,
-                  duration: Duration(milliseconds: 500));
-            },
-          )
-        ],
-      )),
-    );
+  void onStepContinue() {
+    switch (_currentStep) {
+      case 0:
+        {
+          setState(() {
+            _currentStep = 1;
+          });
+        }
+        break;
+      case 1:
+        {
+          setState(() {
+            _currentStep = 2;
+            stepStateList[1] = StepState.complete;
+          });
+        }
+        break;
+      case 2:
+        {
+          setState(() {
+            _currentStep = 3;
+          });
+        }
+        break;
+      case 3:
+        {
+          setState(() {
+            _currentStep = 4;
+            stepStateList[3] = StepState.complete;
+          });
+        }
+        break;
+      case 4:
+        {}
+        break;
+    }
+    setState(() {
+      if (stepStateList[_currentStep] == StepState.complete) {
+        _currentStep++;
+      }
+    });
   }
 
-  Widget _chooseBird() {
-    return Container(
-      color: Colors.blue[50],
-      width: 200,
-      height: _widgetHeight,
-      child: Column(
-        children: [
-          IconButton(
-            icon: Icon(Icons.navigate_before),
-            onPressed: () {
-              _scrollController.animateTo(
-                  2 * _sizedBoxHeight + 2 * _widgetHeight,
-                  curve: Curves.linear,
-                  duration: Duration(milliseconds: 500));
-            },
-          ),
-          Text('Please select the bird you saw'),
-          Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: Birds.birdsList.length,
-              itemBuilder: (context, index) {
+  Widget ContinueButton() {
+    Widget _continueButton;
+    switch (_currentStep) {
+      case 0:
+        {
+          _continueButton = stepStateList[0] == StepState.complete
+              ? Text('Next')
+              : SizedBox(width: 20);
+        }
+        break;
+      case 1:
+        {
+          _continueButton = Text('Next');
+        }
+        break;
+      case 2:
+        {
+          _continueButton = stepStateList[2] == StepState.complete
+              ? Text('Next')
+              : SizedBox(width: 20);
+        }
+        break;
+      case 3:
+        {
+          _continueButton = Text('Next');
+        }
+        break;
+      case 4:
+        {
+          _continueButton = Text('Submit');
+        }
+        break;
+    }
+
+    return CupertinoButton(
+        onPressed: () {
+          onStepContinue();
+        },
+        child: _continueButton);
+  }
+
+  Widget BackButton() {
+    Widget _backButton;
+    if (_currentStep == 0) {
+      _backButton = Container();
+    } else {
+      _backButton = Text('Back');
+    }
+    return CupertinoButton(
+        child: _backButton,
+        onPressed: () {
+          setState(() {
+            _currentStep--;
+          });
+        });
+  }
+
+  Step _chooseBirdBoxNumber() {
+    return Step(
+        state: stepStateList[0],
+        isActive: true,
+        title: Text('Select the Bird Box number',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              children: BirdBoxes.birdBoxesList.map((birdBox) {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      _bird = index;
+                      stepStateList[0] = StepState.complete;
+                      _birdBox = birdBox.id;
                     });
                   },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: _bird == index ? 5.0 : 0.0,
-                        color: Colors.blueAccent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 80,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(100),
+                        ),
+                        border: Border.all(
+                          width: _birdBox == birdBox.id ? 5.0 : 0.0,
+                          color: Colors.blueAccent,
+                        ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
                         child: Column(
                           children: [
-                            Birds.birdsList[index].image.isEmpty
-                                ? Container(
-                                    height: 100,
-                                    width: 100,
-                                    child: Center(
-                                        child: Text(
-                                      '?',
-                                      style: TextStyle(fontSize: 30),
-                                    )))
-                                : Container(
-                                    height: 120,
-                                    width: 120,
-                                    child: Image.asset(
-                                        Birds.birdsList[index].image[0],
-                                        fit: BoxFit.fitHeight)),
-                            Text(Birds.birdsList[index].name)
+                            Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Image.asset(birdBox.boxType.icon),
+                            ),
+                            Text(birdBox.id.toString())
                           ],
                         ),
                       ),
                     ),
                   ),
                 );
-              },
+              }).toList(),
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.navigate_next,
-                color: _bird == -1 ? Colors.grey : Colors.black),
-            onPressed: () {
-              if (_bird != -1) {
-                _scrollController.animateTo(
-                    4 * _sizedBoxHeight + 4 * _widgetHeight,
-                    curve: Curves.linear,
-                    duration: Duration(milliseconds: 500));
-              }
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _commentFormField() {
-    return Container(
-      color: Colors.blue[50],
-      height: _widgetHeight,
-      child: Column(
-        children: [
-          IconButton(
-            icon: Icon(Icons.navigate_before),
-            onPressed: () {
-              _scrollController.animateTo(
-                  _birdsighted
-                      ? 3 * _sizedBoxHeight + 3 * _widgetHeight
-                      : 2 * _sizedBoxHeight + 2 * _widgetHeight,
-                  curve: Curves.linear,
-                  duration: Duration(milliseconds: 500));
-            },
-          ),
-          Text('Comment (optional)'),
-          TextFormField(
-            controller: _controller,
-            textCapitalization: TextCapitalization.sentences,
-          ),
-          IconButton(
-            icon: Icon(Icons.navigate_next),
-            onPressed: () {
-              setState(() {
-                _comment = _controller.text;
-              });
-
-              _scrollController.animateTo(
-                  5 * _sizedBoxHeight + 5 * _widgetHeight,
-                  curve: Curves.linear,
-                  duration: Duration(milliseconds: 500));
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _summaryAndSubmitField() {
-    _comment = _controller.text;
-    return Container(
-      color: Colors.blue[50],
-      height: _widgetHeight,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            IconButton(
-              icon: Icon(Icons.navigate_before),
-              onPressed: () {
-                _scrollController.animateTo(
-                    4 * _sizedBoxHeight + 4 * _widgetHeight,
-                    curve: Curves.linear,
-                    duration: Duration(milliseconds: 500));
-              },
-            ),
-            Text(
-              'Summary',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            DataTable(
-              columns: [
-                DataColumn(label: Text('')),
-                DataColumn(label: Text(''))
-              ],
-              headingRowHeight: 0,
-              rows: [
-                DataRow(
-                  cells: [
-                    DataCell(Text('Bird Box number: ')),
-                    DataCell(Text(_birdbox.toString()))
-                  ],
-                ),
-                DataRow(
-                  cells: [
-                    DataCell(Text('Date: ')),
-                    DataCell(Text(_dateTime.day.toString() +
-                        '/' +
-                        _dateTime.month.toString() +
-                        '/' +
-                        _dateTime.year.toString())),
-                  ],
-                ),
-                DataRow(
-                  cells: [
-                    DataCell(Text('Time: ')),
-                    DataCell(Text(_dateTime.hour.toString() +
-                        ':' +
-                        _dateTime.minute.toString())),
-                  ],
-                ),
-                DataRow(
-                  cells: [
-                    DataCell(Text('Bird: ')),
-                    DataCell(Text(!_birdsighted
-                        ? 'None'
-                        : _bird == -1
-                            ? ''
-                            : Birds.birdsList[_bird].name)),
-                  ],
-                ),
-                DataRow(
-                  cells: [
-                    DataCell(Text('Comment: ')),
-                    DataCell(Text(_comment)),
-                  ],
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Provider.of<Observations>(context, listen: false)
-                        .enterObservation =
-                    Observation(
-                        Provider.of<Observations>(context, listen: false)
-                            .observationsLength,
-                        _dateTime,
-                        _birdbox,
-                        'Emily',
-                        _birdsighted,
-                        _comment,
-                        bird: _birdsighted ? Birds.birdsList[_bird] : null);
-                Navigator.pop(context);
-              },
-              child: Text('Submit'),
-            ),
+            Container(
+                padding: const EdgeInsets.all(20),
+                height: 120,
+                child: Text(_birdBox == -1
+                    ? ''
+                    : BirdBoxes
+                        .birdBoxesList[_birdBox - 1].locationDescription))
           ],
+        ));
+  }
+
+  Step _chooseDateTime() {
+    return Step(
+      state: stepStateList[1],
+      isActive: _currentStep >= 1,
+      title: Text(
+        'Time of observation',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      ),
+      content: Container(
+        height: 100,
+        child: CupertinoTheme(
+          data: CupertinoThemeData(
+            textTheme: CupertinoTextThemeData(
+              dateTimePickerTextStyle: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+          ),
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.dateAndTime,
+            minimumYear: 2020,
+            initialDateTime: _dateTime,
+            maximumDate: DateTime.now(),
+            onDateTimeChanged: (DateTime newDateTime) {
+              _dateTime = newDateTime;
+            },
+          ),
         ),
       ),
     );
+  }
+
+  Step _chooseBird() {
+    return Step(
+        state: stepStateList[2],
+        isActive: _currentStep >= 2,
+        title: Text('Please select the bird you saw'),
+        content: Wrap(
+          children: Birds.birdsList.map((bird) {
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  stepStateList[2] = StepState.complete;
+                  _bird = bird;
+                });
+              },
+              child: Container(
+                width: 100,
+                height: 140,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: _bird == bird ? 5.0 : 0.0,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      ClipOval(
+                        child: SizedBox(
+                          height: 80,
+                          child: bird.image.isEmpty
+                              ? bird.name == 'none'
+                                  ? Container(color: Colors.grey[200])
+                                  : Container(
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                          child: Text(
+                                        '?',
+                                        style: TextStyle(fontSize: 30),
+                                      )),
+                                    )
+                              : Image.asset(bird.image[0],
+                                  fit: BoxFit.fitHeight),
+                        ),
+                      ),
+                      Text(bird.name)
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ));
+  }
+
+  Step _commentFormField() {
+    return Step(
+        state: stepStateList[3],
+        isActive: _currentStep >= 3,
+        title: Text('Comment (optional)'),
+        content: TextFormField(
+          controller: _controller,
+          textCapitalization: TextCapitalization.sentences,
+        ));
+  }
+
+  Step _summaryAndSubmitField() {
+    return Step(
+        state: stepStateList[4],
+        isActive: _currentStep >= 4,
+        title: Text(
+          'Summary',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: DataTable(
+          columns: [DataColumn(label: Text('')), DataColumn(label: Text(''))],
+          headingRowHeight: 0,
+          rows: [
+            DataRow(
+              cells: [
+                DataCell(Text('Bird Box number: ')),
+                DataCell(Text(_birdBox.toString()))
+              ],
+            ),
+            DataRow(
+              cells: [
+                DataCell(Text('Date: ')),
+                DataCell(Text(_dateTime.day.toString() +
+                    '/' +
+                    _dateTime.month.toString() +
+                    '/' +
+                    _dateTime.year.toString())),
+              ],
+            ),
+            DataRow(
+              cells: [
+                DataCell(Text('Time: ')),
+                DataCell(Text(_dateTime.hour.toString() +
+                    ':' +
+                    _dateTime.minute.toString())),
+              ],
+            ),
+            DataRow(
+              cells: [
+                DataCell(Text('Bird: ')),
+                DataCell(Text(!_isBirdSighted
+                    ? 'None'
+                    : _bird == -1
+                        ? ''
+                        : _bird.name)),
+              ],
+            ),
+            DataRow(
+              cells: [
+                DataCell(Text('Comment: ')),
+                DataCell(Text(_comment)),
+              ],
+            ),
+          ],
+        ));
   }
 }
